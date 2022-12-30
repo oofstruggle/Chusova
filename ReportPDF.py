@@ -8,6 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
+import cProfile
+import dateparser
+import datetime as dt
+import csv_file_separator as csv_files_generator
 
 
 currency_to_rub = {'AZN': 35.68, 'BYR': 23.91, 'EUR': 59.90, 'GEL': 21.74, 'KGS': 0.76, 'KZT': 0.13, 'RUR': 1,
@@ -82,6 +86,12 @@ class DataSet:
             print('Нет данных')
             exit()
 
+    def parse_csv(self):
+        """Считывает данные из csv-файла и форматирует их"""
+
+        csv_strings, titles = reader.csv_reader(self.file_name)
+        csv_files_generator.parse_by_years(csv_strings, titles)
+        self.vacancies_objects = reader.csv_filer(csv_strings, titles, self.create_vacancy)
 
 class Vacancy:
     """Класс, представляющий вакансии"""
