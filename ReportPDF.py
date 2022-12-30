@@ -59,6 +59,13 @@ class DataSet:
 
         Args:
             compiled_file (str): Выбранный файл
+
+        >>> type(DataSet("vacancies_by_year.csv", "Аналитик")).__name__
+        'DataSet'
+        >>> DataSet("vacancies_by_year.csv", "Аналитик").profession
+        'Аналитик'
+        >>> DataSet("vacancies_by_year.csv", "Аналитик").file_name
+        'vacancies.csv'
         """
         self.reader = []
         for row in csv.reader(open(compiled_file, encoding='utf_8_sig')):
@@ -92,6 +99,17 @@ class Vacancy:
 
             Args:
                 vacancy (str): вакансия
+
+        >>> Vacancy({"name": "Аналитик", "salary_from": 10000, "salary_to": 100000, "salary_currency": "RUR", "area_name": "Москва",  "published_at": "2022-07-05T18:19:30+0300"}).name
+        'Аналитик'
+        >>> Vacancy({"name": "Аналитик", "salary_from": 10000, "salary_to": 100000, "salary_currency": "RUR", "area_name": "Москва",  "published_at": "2022-07-05T18:19:30+0300"}).salary
+        55000.0
+        >>> Vacancy({"name": "Аналитик", "salary_from": 10000, "salary_to": 100000, "salary_currency": "RUR", "area_name": "Москва",  "published_at": "2022-07-05T18:19:30+0300"}).published_at
+        2022
+        >>> Vacancy({"name": "Аналитик", "salary_from": 10000, "salary_to": 100000, "salary_currency": "RUR", "area_name": "Москва",  "published_at": "2022-07-05T18:19:30+0300"}).area_name
+        'Москва'
+        >>> type(Vacancy({"name": "Аналитик", "salary_from": 10000, "salary_to": 100000, "salary_currency": "RUR", "area_name": "Москва",  "published_at": "2022-07-05T18:19:30+0300"})).__name__
+        'Vacancy'
         """
         for key, value in vacancy.items():
             self.__setattr__(key, self.formatter(key, value))
