@@ -18,6 +18,7 @@ currency_to_rub = {'AZN': 35.68, 'BYR': 23.91, 'EUR': 59.90, 'GEL': 21.74, 'KGS'
 class UsersInput:
     """Класс для пользовательского ввода по шаблону"""
     def __init__(self):
+        """Инициализация объекта UsersInput"""
         self.compiled_file = input('Введите название файла: ')
         self.position_title = input('Введите название профессии: ')
         self.compiled_file = self.check_file_name(self.compiled_file)
@@ -52,6 +53,7 @@ class UsersInput:
 
 
 class DataSet:
+    """Класс, представляющий сбор данных"""
     def __init__(self, compiled_file):
         """Инициализация объекта DataSet
 

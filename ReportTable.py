@@ -13,7 +13,10 @@ currency_to_rub = {'AZN': 35.68, 'BYR': 23.91, 'EUR': 59.90, 'GEL': 21.74, 'KGS'
 
 
 class UsersInput:
+    """Класс для пользовательского ввода по шаблону"""
+
     def __init__(self):
+        """Инициализация объекта UsersInput"""
         self.compiled_file = input('Введите название файла: ')
         self.position_title = input('Введите название профессии: ')
         self.compiled_file = self.validate_file_name(self.compiled_file)
@@ -21,6 +24,11 @@ class UsersInput:
 
     @staticmethod
     def validate_file_name(compiled_file):
+        """
+            Валидация названия файла
+            Args:
+                compiled_file (str): Выбранный файл
+        """
         if compiled_file == '' or '.' not in compiled_file:
             print('Некорректное название файла')
             exit()
@@ -28,6 +36,14 @@ class UsersInput:
 
     @staticmethod
     def check_position_name(position_title):
+        """Валидация названия профессии
+
+                Args:
+                    position_title (str): Выбранное название профессии
+
+                Returns:
+                    str: корректное название профессии
+                """
         if position_title == '':
             print('Некорректное название профессии')
             exit()
@@ -35,7 +51,13 @@ class UsersInput:
 
 
 class DataSet:
+    """Класс, представляющий сбор данных"""
     def __init__(self, compiled_file):
+        """Инициализация объекта DataSet
+
+            Args:
+                compiled_file (str): Выбранный файл
+        """
         self.reader = []
         for row in csv.reader(open(compiled_file, encoding='utf_8_sig')):
             self.reader += [row]
@@ -53,6 +75,8 @@ class DataSet:
 
 
 class Vacancy:
+    """Класс, представляющий вакансии"""
+
     name: str
     salary_from: int or float
     salary_to: int or float
@@ -62,12 +86,26 @@ class Vacancy:
     salary: str
 
     def __init__(self, position):
+        """Инициализация объекта Vacancy
+
+            Args:
+                vacancy (str): вакансия
+        """
 
         for key, value in position.items():
             self.__setattr__(key, self.formatter(key, value))
 
     @staticmethod
     def formatter(key, value):
+        """Форматирование значения в float или int в зависимости от данных
+
+            Args:
+                key (str): ключ словаря
+                value (str or int or float): значение по ключу
+
+            Returns:
+                float or int: сконвертированное число
+        """
         if key in ['salary_from', 'salary_to']:
             return float(value)
         if key == 'published_at':
@@ -76,36 +114,59 @@ class Vacancy:
 
 
 class Salary:
+    """Класс представления зарплаты"""
     def __init__(self, salary_from, salary_to, salary_currency):
+        """Инициализация объекта Salary
+
+            Args:
+                salary_from (str or int or float): нижняя граница оклада
+                salary_to (str or int or float): верхняя граница оклада
+                salary_currency (str): требуемая валюта
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
 
 
 class SalaryDict:
+    """Класс формирования словаря для подсчёта статистики зарплат"""
     def __init__(self):
+        """Инициализация объекта SalaryDict"""
         self.salary_dict = {}
         self.__average_salary_dict = {}
 
     def append_salary(self, key, salary):
+        """Добавить зарплату в словарь
+
+            Args:
+                key: ключ словаря
+                salary: зарплата
+
+            Returns:
+                array: список зарплат по ключу
+        """
         if self.salary_dict.get(key) is None:
             self.salary_dict[key] = []
         return self.salary_dict[key].append(salary)
 
     def calculate_average_salary(self):
+        """Подсчёт средней цифры заработной платы"""
         for key, value in self.salary_dict.items():
             self.__average_salary_dict[key] = int(mean(value))
         return self.__average_salary_dict
 
 
 class AmountChecker:
+    """Класс статистики"""
     def __init__(self):
+        """Инициализация объекта CountDict"""
         self.length = 0
         self.amount_dict = {}
         self.big_towns_arr = []
         self.prevailing_dict = {}
 
     def update_amount(self, key):
+        """Обновить значения по ключу"""
         if self.amount_dict.get(key) is None:
             self.amount_dict[key] = 0
         self.amount_dict[key] += 1
@@ -113,6 +174,7 @@ class AmountChecker:
         return
 
     def calculate_proportion(self):
+        """Посчитать пропорцию"""
         proportion_dict = {}
         for key, value in self.amount_dict.items():
             found_proportion = value / self.length
@@ -125,7 +187,9 @@ class AmountChecker:
 
 
 class Constractor:
+    """Собрать полученные статистические данные в одну структуру"""
     def __init__(self):
+        """Инициализация объекта Constractor"""
         self.year_salary = SalaryDict()
         self.year_vacancy_amount = AmountChecker()
         self.year_vacancy_salary = SalaryDict()
@@ -134,6 +198,15 @@ class Constractor:
         self.town_job_rate = AmountChecker()
 
     def compile_data(self, vacancies, place):
+        """Получить и объединить данные статистики из словаря
+
+            Args:
+                vacancies: вакансия
+                prof (str): название профессии
+
+            Returns: tuple: (средняя зарплата, годовое количество мест, средняя зарплата по вакансии, количество
+            вакансий по годам, зарплата по городам, городской рейтинг профессий)
+        """
         self.calculate_stat_values(place, vacancies)
         if self.year_vacancy_salary.salary_dict == {}:
             self.year_vacancy_salary.salary_dict = {x: [0] for x in self.year_salary.salary_dict.keys()}
@@ -158,14 +231,31 @@ class Constractor:
                self.town_salary, self.town_job_rate
 
     def set_position_vacancy_key_to_zero(self, key):
+        """Вспомогательная функция для приведения значения количества профессий к нулю по ключу
+
+            Args:
+                key: ключ
+
+        """
         if key not in list(self.year_position_vacancy_amount.amount_dict.keys()):
             self.year_position_vacancy_amount.amount_dict[key] = 0
 
     def set_key_to_zero(self, key):
+        """Вспомогательная функция для приведения значения количества профессий к нулю по ключу
+
+            Args:
+                key: ключ
+        """
         if key not in list(self.year_vacancy_salary.calculate_average_salary().keys()):
             self.year_vacancy_salary.calculate_average_salary()[key] = 0
 
     def calculate_stat_values(self, place, vacancies):
+        """Обновить полученные значения пунктов
+
+            Args:
+                prof (str): название профессии
+                vacancies: вакансии
+        """
         for vacancy in vacancies:
             vacancy_salary = (vacancy.salary_from + vacancy.salary_to) / 2 * currency_to_rub[vacancy.salary_currency]
             self.year_salary.append_salary(vacancy.published_at, vacancy_salary)
@@ -178,6 +268,14 @@ class Constractor:
 
     @staticmethod
     def calculate_highest_average_salary(list_all_salary):
+        """"Высчитать самую высокую среднюю зарплату
+
+            Args:
+                list_all_salary: выдержка по всем зарплатам
+
+            Returns:
+                tuple: (высшая зарплата, фильтр списка городов)
+        """
         average_salary_values = []
         town_tracker = {}
         for i in range(len(list_all_salary.salary_dict)):
@@ -208,6 +306,14 @@ class Constractor:
 
     @staticmethod
     def find_highest_town_rating(town_job_rate):
+        """Найти рейтинговую пропорцию профессии по городам
+
+            Args:
+                town_job_rating: рейтинг профессии по городам
+
+            Returns:
+                dict: отсортированный словарь пропорции
+        """
         del_for_towns = []
         for i in reversed(range(len(del_for_towns))):
             del town_job_rate.amount_dict[del_for_towns[i][0]]
@@ -224,7 +330,14 @@ class Constractor:
 
 
 class CreateReport:
+    """Класс для создания отчёта"""
     def __init__(self):
+        """Инициализация объекта CreateReport
+
+            Args:
+                data: полученные в ходе подсчётов данные
+                prof (str): название профессии
+        """
         self.wb = Workbook()
         self.sheet1 = self.wb.active
         self.sheet1.title = 'Статистика по годам'
@@ -241,6 +354,7 @@ class CreateReport:
         self.ax4.set_title('Доля вакансий по городам')
 
     def create_excel_sheets(self, data, place):
+        """Создать файл Excel"""
         year_salary = data[0]
         year_vacancy_amount = data[1]
         year_vacancy_salary = data[2]
@@ -281,11 +395,22 @@ class CreateReport:
 
     @staticmethod
     def place_border(ws, side):
+        """Установить границы таблицы Excel
+
+            Args:
+                ws: рабочая плоскость
+                cell_border (int): граница
+        """
         for cell in ws._cells.values():
             cell.border = Border(top=side, bottom=side, left=side, right=side)
 
     @staticmethod
     def calculate_column_width(ws):
+        """Посчитать ширину колонки
+
+            Args:
+                ws: рабочая плоскость
+        """
         dimension_dict = {}
         for row in ws.rows:
             for cell in row:
@@ -296,6 +421,7 @@ class CreateReport:
             ws.column_dimensions[column_var].width = value + 2
 
     def create_image(self, data, place):
+        """Создать картинку со статистическими данными"""
         year_salary = data[0]
         year_vacancy_amount = data[1]
         year_vacancy_salary = data[2]
@@ -355,6 +481,11 @@ class CreateReport:
         plt.savefig('graph.png')
 
     def apply_attributes(self, img_titles, town_salary):
+        """Задать параметры текста на картинке
+
+            Args:
+                img_titles (str): заголовки пунктов на картинках
+        """
         for key, value in town_salary.items():
             if ' ' in key:
                 key = str(key).replace(' ', '\n')
@@ -366,6 +497,12 @@ class CreateReport:
 
 
 def generate_output(data_vacancies, position_title):
+    """Сгенерировать вывод по шаблону
+
+        Args:
+            data_vacancies: данные вакансий
+            position_title: название профессии
+    """
     compiled_vacancies_arr = []
     for compilation in data_vacancies:
         compilation = Vacancy(dict(zip(column_headers, compilation)))
