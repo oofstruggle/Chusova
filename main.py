@@ -6,7 +6,7 @@ def main():
     type_of_report = input("Введите тип отчета (Вакансии/Статистика): ")
     if type_of_report == "Вакансии":
         ReportTable.create_table()
-    elif type_of_report == "Результаты":
+    elif type_of_report == "Фантастика":
         ReportPDF.create_pdf()
     else:
         print("Неверный тип отчета!")
